@@ -79,6 +79,10 @@ const STEPS = [
                     <li>"Điểm mạnh và điểm yếu của bạn là gì?"</li>
                     <li>"Bạn thấy mình có gì chưa tốt? (câu test thái độ)"</li>
                 </ul>
+                <div class="ask-zone">
+                    <button class="ask-btn" onclick="randomAsk('vi')"><span class="dice">🎲</span> Ask — Hỏi ngẫu nhiên</button>
+                    <div id="randomViBox"></div>
+                </div>
             </div>
             <div class="warn-box">
                 <h4>⚠️ BGK sẽ TEST thái độ!</h4>
@@ -179,6 +183,10 @@ const STEPS = [
                     <li>28. A passenger refuses to fasten their seatbelt. What would you do?</li>
                     <li>29. Do you have any questions for us?</li>
                 </ul>
+                <div class="ask-zone">
+                    <button class="ask-btn" onclick="randomAsk('en')"><span class="dice">🎲</span> Ask — Random Question</button>
+                    <div id="randomEnBox"></div>
+                </div>
             </div>
             <div class="info-box">
                 <h4>✈️ Kiến thức Vietnam Airlines CẦN NHỚ (bằng tiếng Anh)</h4>
@@ -585,6 +593,100 @@ function showToast(msg) {
     document.body.appendChild(toast);
     requestAnimationFrame(() => toast.classList.add('show'));
     setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// ==================== RANDOM ASK ====================
+const RANDOM_VI = [
+    "Hãy giới thiệu về bản thân bạn.",
+    "Tại sao bạn muốn trở thành tiếp viên hàng không?",
+    "Bạn biết gì về Vietnam Airlines?",
+    "Bạn có sẵn sàng xa nhà trong thời gian dài không?",
+    "Gia đình bạn nghĩ gì về việc bạn ứng tuyển tiếp viên?",
+    "Nếu hành khách phàn nàn, bạn xử lý thế nào?",
+    "Điểm mạnh và điểm yếu của bạn là gì?",
+    "Bạn thấy mình có gì chưa tốt?",
+    "Bạn thích điều gì nhất ở nghề tiếp viên?",
+    "Tại sao BGK nên chọn bạn?",
+];
+
+const RANDOM_EN = [
+    "Can you introduce yourself?",
+    "Tell me about your family?",
+    "Where is your hometown? Tell me something about it.",
+    "What are your hobbies?",
+    "Tell me 3 characters about you?",
+    "What's your major? Why did you choose it?",
+    "What did you learn from your major?",
+    "Why did you choose your major but want to be a flight attendant?",
+    "Have you ever worked before? What did you learn?",
+    "Why do you want to change your job?",
+    "Have you ever had any problem at your job, how did you solve it?",
+    "Why do you want to become a flight attendant?",
+    "What are your strengths? Why should I choose you?",
+    "What is your weakness?",
+    "What does a flight attendant do?",
+    "What are the difficulties to be a flight attendant?",
+    "What do you know about Vietnam Airlines?",
+    "Why do you want to work for Vietnam Airlines?",
+    "What does the Golden Lotus stand for?",
+    "What is the slogan of Vietnam Airlines?",
+    "Do you have any friends or relative work for Vietnam Airlines?",
+    "You have to relocate to Nha Trang/Da Nang. What do you think?",
+    "Are you willing to be based in Hanoi or HCMC?",
+    "How do you handle being away from home for long periods?",
+    "How would you handle an angry passenger?",
+    "A passenger refuses to fasten their seatbelt. What would you do?",
+    "What does your family think about you become a flight attendant?",
+    "What's your favorite book? Tell me what it's about?",
+    "Where do you like to travel?",
+];
+
+let askSpinTimer = null;
+
+function randomAsk(lang) {
+    const list = lang === 'vi' ? RANDOM_VI : RANDOM_EN;
+    const boxId = lang === 'vi' ? 'randomViBox' : 'randomEnBox';
+    const label = lang === 'vi' ? '🇻🇳 CÂU HỎI TIẾNG VIỆT' : '🇬🇧 ENGLISH QUESTION';
+    const box = document.getElementById(boxId);
+    if (!box) return;
+
+    // Create box if needed
+    box.innerHTML = `<div class="random-q-box spinning" id="${boxId}Inner">
+        <div class="random-q-label">${label}</div>
+        <div class="random-q-text" id="${boxId}Text">...</div>
+        <div class="random-q-num" id="${boxId}Num">?</div>
+    </div>`;
+
+    const textEl = document.getElementById(`${boxId}Text`);
+    const numEl = document.getElementById(`${boxId}Num`);
+    const innerBox = document.getElementById(`${boxId}Inner`);
+
+    // Spin effect
+    let spinCount = 0;
+    const totalSpins = 12;
+    if (askSpinTimer) clearInterval(askSpinTimer);
+
+    askSpinTimer = setInterval(() => {
+        const idx = Math.floor(Math.random() * list.length);
+        textEl.textContent = list[idx];
+        numEl.textContent = idx + 1;
+        spinCount++;
+
+        if (spinCount >= totalSpins) {
+            clearInterval(askSpinTimer);
+            askSpinTimer = null;
+            innerBox.classList.remove('spinning');
+            // Final random pick
+            const finalIdx = Math.floor(Math.random() * list.length);
+            textEl.textContent = list[finalIdx];
+            numEl.textContent = finalIdx + 1;
+            // Re-trigger pop animation
+            innerBox.style.animation = 'none';
+            requestAnimationFrame(() => {
+                innerBox.style.animation = 'popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            });
+        }
+    }, 80);
 }
 
 // ==================== INIT ====================
